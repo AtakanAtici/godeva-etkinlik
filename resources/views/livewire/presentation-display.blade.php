@@ -215,24 +215,15 @@
                     </div>
                 @else
                     <!-- Open Text Answers Grid -->
-                    <div class="grid grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-4" id="answers-feed">
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-6" id="answers-feed">
                         @forelse($recentAnswers as $answer)
                             <div
-                                class="bg-white rounded-lg p-4 aspect-square flex flex-col justify-center border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-200">
-                                <!-- Content -->
-                                <div class="flex-1 flex flex-col justify-center">
-                                    <p class="text-gray-800 text-xs font-medium text-center line-clamp-4 leading-relaxed mb-3">
+                                class="bg-white backdrop-blur rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 flex flex-col justify-center group relative overflow-hidden h-full">
+                                <div class="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-purple-50/50 opacity-0 group-hover:opacity-100 transition duration-500"></div>
+                                <div class="relative z-10">
+                                    <p class="text-gray-800 text-xl font-medium text-center leading-relaxed break-all">
                                         {{ $answer->content }}
                                     </p>
-                                </div>
-
-                                <!-- Author -->
-                                <div class="mt-auto">
-                                    <div class="bg-gray-100 rounded-full px-3 py-1">
-                                        <p class="text-gray-600 text-xs text-center truncate font-medium">
-                                            {{ $answer->participant->nickname }}
-                                        </p>
-                                    </div>
                                 </div>
                             </div>
                         @empty

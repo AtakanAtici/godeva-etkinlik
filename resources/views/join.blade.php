@@ -3,8 +3,8 @@
         <!-- Header -->
         <div class="bg-white border-b border-gray-200 px-6 py-8">
             <div class="max-w-md mx-auto text-center">
-                <div class="flex items-center justify-center gap-4 mb-6">
-                    <img src="https://godeva.com.tr/assets/img/logo_home6.svg" alt="Godeva Logo" class="h-12 w-auto">
+                <div class="mb-6">
+                    <img src="https://godeva.com.tr/assets/img/logo_home6.svg" alt="Godeva Logo" class="h-12 w-auto mx-auto mb-4">
                     <h1 class="text-3xl font-bold text-gray-900">Etkinliğe Katılın</h1>
                 </div>
                 <div class="bg-gray-50 rounded-lg px-4 py-3 inline-block">

@@ -2,9 +2,53 @@
     <!-- Room Header -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <div class="flex justify-between items-start">
-            <div>
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $room->title }}</h2>
-                <p class="text-gray-600 dark:text-gray-300">Oda Kodu: 
+            <div class="flex-1">
+                @if($editing_title)
+                    <!-- Editing Mode -->
+                    <div class="space-y-3">
+                        <input 
+                            type="text" 
+                            wire:model="room_title"
+                            class="text-2xl font-bold bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-gray-900 dark:text-white w-full max-w-md focus:ring-2 focus:ring-blue-500"
+                            placeholder="Etkinlik başlığı"
+                            wire:keydown.enter="saveRoomTitle"
+                            wire:keydown.escape="cancelEditingTitle"
+                        >
+                        @error('room_title')
+                            <p class="text-red-500 text-sm">{{ $message }}</p>
+                        @enderror
+                        <div class="flex gap-2">
+                            <button 
+                                wire:click="saveRoomTitle"
+                                class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm font-medium"
+                            >
+                                ✓ Kaydet
+                            </button>
+                            <button 
+                                wire:click="cancelEditingTitle"
+                                class="bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded text-sm font-medium"
+                            >
+                                ✕ İptal
+                            </button>
+                        </div>
+                    </div>
+                @else
+                    <!-- Display Mode -->
+                    <div class="flex items-center gap-3 group">
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $room->title }}</h2>
+                        <button 
+                            wire:click="startEditingTitle"
+                            class="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
+                            title="Başlığı düzenle"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                @endif
+                
+                <p class="text-gray-600 dark:text-gray-300 mt-2">Oda Kodu: 
                     <span class="font-mono text-lg font-bold text-blue-600 dark:text-blue-400">{{ $room->code }}</span>
                 </p>
                 <p class="text-sm text-gray-500 dark:text-gray-400">

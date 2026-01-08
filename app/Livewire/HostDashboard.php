@@ -19,6 +19,8 @@ class HostDashboard extends Component
     public $recent_answers = [];
     public int $total_participants = 0;
     public ?Question $current_question = null;
+    public bool $editing_title = false;
+    public string $room_title = '';
     
     public function mount(string $roomId)
     {
@@ -31,6 +33,7 @@ class HostDashboard extends Component
     {
         $this->room = Room::findOrFail($this->roomId);
         $this->current_question = $this->room->activeQuestion();
+        $this->room_title = $this->room->title; // Initialize the editable title
     }
 
     public function loadStats()
@@ -140,6 +143,35 @@ class HostDashboard extends Component
     public function onParticipantJoined($data)
     {
         $this->total_participants = $data['participant_count'];
+    }
+
+    public function startEditingTitle()
+    {
+        $this->editing_title = true;
+        $this->room_title = $this->room->title;
+    }
+
+    public function cancelEditingTitle()
+    {
+        $this->editing_title = false;
+        $this->room_title = $this->room->title;
+    }
+
+    public function saveRoomTitle()
+    {
+        $this->validate([
+            'room_title' => 'required|string|max:255|min:3'
+        ], [
+            'room_title.required' => 'Etkinlik başlığı gereklidir.',
+            'room_title.max' => 'Etkinlik başlığı en fazla 255 karakter olabilir.',
+            'room_title.min' => 'Etkinlik başlığı en az 3 karakter olmalıdır.'
+        ]);
+
+        $this->room->update(['title' => $this->room_title]);
+        $this->editing_title = false;
+        
+        session()->flash('success', 'Etkinlik başlığı güncellendi!');
+        $this->loadRoom();
     }
 
     public function render()

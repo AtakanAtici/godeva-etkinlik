@@ -36,7 +36,9 @@ Route::get('/join/{code}', function (string $code) {
 });
 
 // Login routes
-Route::get('/login', App\Livewire\Login::class)->name('login');
+Route::get('/login', function () {
+    return view('login');
+})->name('login');
 Route::post('/logout', function () {
     session()->forget('authenticated');
     return redirect('/login');

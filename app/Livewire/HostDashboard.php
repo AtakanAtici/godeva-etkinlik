@@ -21,9 +21,9 @@ class HostDashboard extends Component
     public ?Question $current_question = null;
     public bool $editing_title = false;
     public string $room_title = '';
-    public array $question_options = ['', '', '', '']; // 4 default options
+    public array $question_options = ['', '']; // 2 default options
     public int $correct_option = -1; // For future voting results
-    
+
     public function mount(string $roomId)
     {
         $this->roomId = $roomId;
@@ -46,7 +46,7 @@ class HostDashboard extends Component
     public function loadStats()
     {
         $this->total_participants = $this->room->participantCount();
-        
+
         if ($this->current_question) {
             $this->recent_answers = $this->current_question->answers()
                 ->with('participant')
@@ -92,7 +92,7 @@ class HostDashboard extends Component
     {
         $this->new_question_title = '';
         $this->question_type = 'open_text';
-        $this->question_options = ['', '', '', ''];
+        $this->question_options = ['', ''];
         $this->correct_option = -1;
     }
 
@@ -114,7 +114,7 @@ class HostDashboard extends Component
     public function publishQuestion($questionId)
     {
         $question = Question::findOrFail($questionId);
-        
+
         // Close current question if any
         if ($this->current_question && $this->current_question->id !== $question->id) {
             $this->current_question->close();
@@ -123,9 +123,9 @@ class HostDashboard extends Component
 
         $question->publish();
         $this->room->update(['status' => 'active']);
-        
+
         // broadcast(new QuestionPublished($question))->toOthers(); // Temporarily disabled
-        
+
         session()->flash('success', 'Soru yayınlandı!');
         $this->loadRoom();
         $this->loadStats();
@@ -134,10 +134,10 @@ class HostDashboard extends Component
     public function closeQuestion($questionId)
     {
         $question = Question::findOrFail($questionId);
-        
+
         $question->close();
         // broadcast(new QuestionClosed($question))->toOthers(); // Temporarily disabled
-        
+
         session()->flash('success', 'Soru kapatıldı!');
         $this->loadRoom();
         $this->recent_answers = [];
@@ -146,7 +146,7 @@ class HostDashboard extends Component
     public function reopenQuestion($questionId)
     {
         $question = Question::findOrFail($questionId);
-        
+
         // Close current question if any
         if ($this->current_question && $this->current_question->id !== $question->id) {
             $this->current_question->close();
@@ -155,9 +155,9 @@ class HostDashboard extends Component
 
         $question->reopen();
         $this->room->update(['status' => 'active']);
-        
+
         // broadcast(new QuestionPublished($question))->toOthers(); // Temporarily disabled
-        
+
         session()->flash('success', 'Soru yeniden açıldı!');
         $this->loadRoom();
         $this->loadStats();
@@ -166,7 +166,7 @@ class HostDashboard extends Component
     public function hideAnswer($answerId)
     {
         $answer = Answer::findOrFail($answerId);
-        
+
         $answer->hide();
         session()->flash('success', 'Cevap gizlendi!');
         $this->loadStats();
@@ -214,7 +214,7 @@ class HostDashboard extends Component
 
         $this->room->update(['title' => $this->room_title]);
         $this->editing_title = false;
-        
+
         session()->flash('success', 'Etkinlik başlığı güncellendi!');
         $this->loadRoom();
     }

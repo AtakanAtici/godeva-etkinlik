@@ -16,7 +16,8 @@
         <!-- TailwindCSS CDN for Production -->
         <script src="https://cdn.tailwindcss.com"></script>
     @else
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @vite(['resources/css/app.css'])
+        <!-- Skip app.js to avoid Laravel Echo issues -->
     @endif
     @livewireStyles
 </head>

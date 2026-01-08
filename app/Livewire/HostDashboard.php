@@ -21,10 +21,14 @@ class HostDashboard extends Component
     public ?Question $current_question = null;
     public bool $editing_title = false;
     public string $room_title = '';
+    public array $question_options = ['', '', '', '']; // 4 default options
+    public int $correct_option = -1; // For future voting results
     
     public function mount(string $roomId)
     {
         $this->roomId = $roomId;
+        $this->room = Room::findOrFail($this->roomId);
+        $this->room_title = $this->room->title; // Initialize before loadRoom
         $this->loadRoom();
         $this->loadStats();
     }
@@ -33,7 +37,10 @@ class HostDashboard extends Component
     {
         $this->room = Room::findOrFail($this->roomId);
         $this->current_question = $this->room->activeQuestion();
-        $this->room_title = $this->room->title; // Initialize the editable title
+        // Don't override room_title if we're editing
+        if (!$this->editing_title) {
+            $this->room_title = $this->room->title;
+        }
     }
 
     public function loadStats()
@@ -52,18 +59,56 @@ class HostDashboard extends Component
 
     public function createQuestion()
     {
-        $this->validate([
+        $validationRules = [
             'new_question_title' => 'required|string|max:500|min:5',
-        ]);
+        ];
+
+        // Validate multiple choice options if needed
+        if ($this->question_type === 'multiple_choice') {
+            $validationRules['question_options'] = 'required|array|min:2';
+            $validationRules['question_options.*'] = 'required|string|max:200';
+        }
+
+        $this->validate($validationRules);
+
+        $options = null;
+        if ($this->question_type === 'multiple_choice') {
+            // Filter out empty options and reindex
+            $options = array_values(array_filter($this->question_options, fn($option) => !empty(trim($option))));
+        }
 
         $question = $this->room->questions()->create([
             'title' => $this->new_question_title,
-            'type' => $this->question_type
+            'type' => $this->question_type,
+            'options' => $options
         ]);
 
-        $this->new_question_title = '';
+        $this->resetForm();
         session()->flash('success', 'Soru oluşturuldu!');
         $this->loadRoom();
+    }
+
+    public function resetForm()
+    {
+        $this->new_question_title = '';
+        $this->question_type = 'open_text';
+        $this->question_options = ['', '', '', ''];
+        $this->correct_option = -1;
+    }
+
+    public function addOption()
+    {
+        if (count($this->question_options) < 6) { // Maximum 6 options
+            $this->question_options[] = '';
+        }
+    }
+
+    public function removeOption($index)
+    {
+        if (count($this->question_options) > 2) { // Minimum 2 options
+            array_splice($this->question_options, $index, 1);
+            $this->question_options = array_values($this->question_options); // Reindex
+        }
     }
 
     public function publishQuestion($questionId)

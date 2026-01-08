@@ -17,6 +17,7 @@ class PresentationDisplay extends Component
     public int $participantCount = 0;
     public $wordCloudData = [];
     public int $lastAnswerCount = 0;
+    public $multipleChoiceResults = [];
 
     public function mount(string $roomCode)
     {
@@ -45,8 +46,12 @@ class PresentationDisplay extends Component
 
             $this->lastAnswerCount = $this->recentAnswers->count();
 
-            // Generate word cloud data
-            $this->generateWordCloud();
+            // Generate appropriate data based on question type
+            if ($this->currentQuestion->type === 'multiple_choice') {
+                $this->generateMultipleChoiceResults();
+            } else {
+                $this->generateWordCloud();
+            }
         }
     }
 
@@ -63,6 +68,60 @@ class PresentationDisplay extends Component
                 $this->loadData();
             }
         }
+    }
+
+    public function generateMultipleChoiceResults()
+    {
+        if (!$this->currentQuestion || !$this->currentQuestion->options) {
+            $this->multipleChoiceResults = [];
+            return;
+        }
+
+        // Initialize results array
+        $results = [];
+        $totalVotes = 0;
+
+        foreach ($this->currentQuestion->options as $index => $option) {
+            $results[$index] = [
+                'option' => $option,
+                'letter' => chr(65 + $index),
+                'count' => 0,
+                'percentage' => 0
+            ];
+        }
+
+        // Count votes for each option
+        $answers = $this->currentQuestion->answers()
+            ->where('is_hidden', false)
+            ->get();
+
+        foreach ($answers as $answer) {
+            $index = null;
+            
+            // Try to extract from formatted answer (e.g., "A. Option text")
+            if (preg_match('/^([A-Z])\./', $answer->content, $matches)) {
+                $letter = $matches[1];
+                $index = ord($letter) - 65; // Convert A=0, B=1, etc.
+            }
+            // Handle raw numeric answers (e.g., "0", "1", "2")
+            elseif (is_numeric($answer->content) && intval($answer->content) >= 0 && intval($answer->content) < count($this->currentQuestion->options)) {
+                $index = intval($answer->content);
+            }
+            
+            if ($index !== null && isset($results[$index])) {
+                $results[$index]['count']++;
+                $totalVotes++;
+            }
+        }
+
+        // Calculate percentages
+        if ($totalVotes > 0) {
+            foreach ($results as $index => $result) {
+                $results[$index]['percentage'] = round(($result['count'] / $totalVotes) * 100, 1);
+            }
+        }
+
+        $this->multipleChoiceResults = array_values($results);
     }
 
     public function generateWordCloud()
@@ -95,6 +154,7 @@ class PresentationDisplay extends Component
         $this->currentQuestion = Question::find($data['question']['id']);
         $this->recentAnswers = [];
         $this->wordCloudData = [];
+        $this->multipleChoiceResults = [];
     }
 
     #[On('echo:room.{roomCode},question.closed')]
@@ -103,6 +163,7 @@ class PresentationDisplay extends Component
         $this->currentQuestion = null;
         $this->recentAnswers = [];
         $this->wordCloudData = [];
+        $this->multipleChoiceResults = [];
     }
 
     #[On('echo:room.{roomCode},answer.submitted')]

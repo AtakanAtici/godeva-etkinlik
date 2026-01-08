@@ -13,6 +13,7 @@
                             placeholder="Etkinlik başlığı"
                             wire:keydown.enter="saveRoomTitle"
                             wire:keydown.escape="cancelEditingTitle"
+                            x-init="$nextTick(() => $el.focus())"
                         >
                         @error('room_title')
                             <p class="text-red-500 text-sm">{{ $message }}</p>
@@ -111,11 +112,62 @@
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Soru Tipi
                         </label>
-                        <select wire:model="question_type" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white">
+                        <select wire:model.live="question_type" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white">
                             <option value="open_text">Açık Uçlu</option>
-                            <option value="multiple_choice" disabled>Çoktan Seçmeli (Yakında)</option>
+                            <option value="multiple_choice">Çoktan Seçmeli</option>
                         </select>
                     </div>
+
+                    @if($question_type === 'multiple_choice')
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Seçenekler
+                            </label>
+                            <div class="space-y-2">
+                                @foreach($question_options as $index => $option)
+                                    <div class="flex gap-2 items-center">
+                                        <span class="text-sm font-medium text-gray-500 w-6">{{ chr(65 + $index) }}.</span>
+                                        <input 
+                                            type="text"
+                                            wire:model="question_options.{{ $index }}"
+                                            class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                                            placeholder="Seçenek {{ chr(65 + $index) }}"
+                                            maxlength="200"
+                                        >
+                                        @if(count($question_options) > 2)
+                                            <button 
+                                                type="button"
+                                                wire:click="removeOption({{ $index }})"
+                                                class="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
+                                                title="Seçeneği sil"
+                                            >
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                </svg>
+                                            </button>
+                                        @endif
+                                    </div>
+                                @endforeach
+                                
+                                @error('question_options.*')
+                                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                                @enderror
+                                
+                                @if(count($question_options) < 6)
+                                    <button 
+                                        type="button"
+                                        wire:click="addOption"
+                                        class="flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm font-medium"
+                                    >
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                        </svg>
+                                        Seçenek Ekle
+                                    </button>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
 
                     <button 
                         type="submit"

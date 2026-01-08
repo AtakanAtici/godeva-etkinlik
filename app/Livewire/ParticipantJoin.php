@@ -122,9 +122,16 @@ class ParticipantJoin extends Component
         $this->submitting = true;
 
         try {
-            $this->validate([
-                'answer_content' => 'required|string|max:1000'
-            ]);
+            // Validate based on question type
+            if ($this->currentQuestion->type === 'multiple_choice') {
+                $this->validate([
+                    'answer_content' => 'required|numeric|min:0|max:' . (count($this->currentQuestion->options) - 1)
+                ]);
+            } else {
+                $this->validate([
+                    'answer_content' => 'required|string|max:1000'
+                ]);
+            }
 
             // Check if user already submitted an answer for this question
             $existingAnswer = $this->currentQuestion->answers()
@@ -137,9 +144,17 @@ class ParticipantJoin extends Component
                 return;
             }
 
+            // Prepare answer content based on question type
+            $answerContent = $this->answer_content;
+            if ($this->currentQuestion->type === 'multiple_choice') {
+                $optionIndex = intval($this->answer_content);
+                $selectedOption = $this->currentQuestion->options[$optionIndex] ?? '';
+                $answerContent = chr(65 + $optionIndex) . '. ' . $selectedOption;
+            }
+
             $answer = $this->currentQuestion->answers()->create([
                 'participant_id' => $this->participant->id,
-                'content' => $this->answer_content,
+                'content' => $answerContent,
                 'submitted_at' => now()
             ]);
 

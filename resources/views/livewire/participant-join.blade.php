@@ -92,31 +92,61 @@
                     </div>
 
                     <form wire:submit="submitAnswer" class="space-y-4">
-                        <div>
-                            <label for="answer_content" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Cevabınız
-                            </label>
-                            <textarea 
-                                id="answer_content"
-                                wire:model.live="answer_content"
-                                rows="4"
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white resize-none"
-                                placeholder="Cevabınızı buraya yazın..."
-                                maxlength="1000"
-                            ></textarea>
-                            @error('answer_content') 
-                                <span class="text-red-500 text-sm">{{ $message }}</span> 
-                            @enderror
-                            <p class="text-xs text-gray-500 mt-1">
-                                <span x-text="$wire.answer_content.length"></span>/1000 karakter
-                            </p>
-                        </div>
+                        @if($currentQuestion->type === 'multiple_choice' && $currentQuestion->options)
+                            <!-- Multiple Choice Options -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                                    Seçiminizi yapın
+                                </label>
+                                <div class="space-y-3">
+                                    @foreach($currentQuestion->options as $index => $option)
+                                        <label class="flex items-center p-4 border-2 border-gray-200 dark:border-gray-600 rounded-lg hover:border-blue-300 dark:hover:border-blue-500 cursor-pointer transition-colors
+                                            {{ $answer_content == $index ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : '' }}">
+                                            <input 
+                                                type="radio" 
+                                                wire:model.live="answer_content" 
+                                                value="{{ $index }}"
+                                                class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"
+                                            >
+                                            <div class="ml-3 flex-1">
+                                                <span class="font-semibold text-gray-700 dark:text-gray-300">{{ chr(65 + $index) }}.</span>
+                                                <span class="text-gray-900 dark:text-white ml-2">{{ $option }}</span>
+                                            </div>
+                                        </label>
+                                    @endforeach
+                                </div>
+                                @error('answer_content') 
+                                    <span class="text-red-500 text-sm">{{ $message }}</span> 
+                                @enderror
+                            </div>
+                        @else
+                            <!-- Open Text Answer -->
+                            <div>
+                                <label for="answer_content" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Cevabınız
+                                </label>
+                                <textarea 
+                                    id="answer_content"
+                                    wire:model.live="answer_content"
+                                    rows="4"
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white resize-none"
+                                    placeholder="Cevabınızı buraya yazın..."
+                                    maxlength="1000"
+                                ></textarea>
+                                @error('answer_content') 
+                                    <span class="text-red-500 text-sm">{{ $message }}</span> 
+                                @enderror
+                                <p class="text-xs text-gray-500 mt-1">
+                                    <span x-text="$wire.answer_content.length"></span>/1000 karakter
+                                </p>
+                            </div>
+                        @endif
 
                         <button 
                             type="submit"
                             class="w-full text-white font-semibold py-3 px-6 rounded-lg transition duration-200"
-                            :class="($wire.answer_content.length > 0 && !$wire.submitting) ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'"
-                            :disabled="$wire.answer_content.length === 0 || $wire.submitting"
+                            :class="($wire.answer_content !== '' && $wire.answer_content !== null && !$wire.submitting) ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'"
+                            :disabled="$wire.answer_content === '' || $wire.answer_content === null || $wire.submitting"
                             wire:loading.attr="disabled"
                             wire:target="submitAnswer"
                         >

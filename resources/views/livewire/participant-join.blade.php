@@ -83,6 +83,12 @@
                                 {{ session('answer_submitted') }}
                             </div>
                         @endif
+                        
+                        @if ($errorMessage)
+                            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                                {{ $errorMessage }}
+                            </div>
+                        @endif
                     </div>
 
                     <form wire:submit="submitAnswer" class="space-y-4">
@@ -109,12 +115,15 @@
                         <button 
                             type="submit"
                             class="w-full text-white font-semibold py-3 px-6 rounded-lg transition duration-200"
-                            :class="$wire.answer_content.length > 0 ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'"
-                            :disabled="$wire.answer_content.length === 0"
+                            :class="($wire.answer_content.length > 0 && !$wire.submitting) ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'"
+                            :disabled="$wire.answer_content.length === 0 || $wire.submitting"
                             wire:loading.attr="disabled"
+                            wire:target="submitAnswer"
                         >
-                            <span wire:loading.remove>Cevabı Gönder</span>
-                            <span wire:loading>Gönderiliyor...</span>
+                            <span wire:loading.remove wire:target="submitAnswer">
+                                @if($submitting) Gönderiliyor... @else Cevabı Gönder @endif
+                            </span>
+                            <span wire:loading wire:target="submitAnswer">Gönderiliyor...</span>
                         </button>
                     </form>
                 </div>

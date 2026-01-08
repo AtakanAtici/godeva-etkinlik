@@ -22,6 +22,8 @@ class ParticipantJoin extends Component
     public bool $joined = false;
     public bool $waiting_for_question = false;
     public ?string $lastQuestionId = null;
+    public bool $submitting = false;
+    public ?string $errorMessage = null;
 
     public function mount(string $roomCode)
     {
@@ -104,6 +106,7 @@ class ParticipantJoin extends Component
             // Clear answer content if question changed
             if ($newQuestion && $this->lastQuestionId && $this->lastQuestionId !== $newQuestion->id) {
                 $this->answer_content = '';
+                $this->errorMessage = null; // Clear any error messages
                 session()->forget('answer_submitted');
             }
         }
@@ -111,25 +114,46 @@ class ParticipantJoin extends Component
 
     public function submitAnswer()
     {
-        if (!$this->currentQuestion || !$this->participant) {
+        // Prevent duplicate submissions
+        if ($this->submitting || !$this->currentQuestion || !$this->participant) {
             return;
         }
 
-        $this->validate([
-            'answer_content' => 'required|string|max:1000'
-        ]);
+        $this->submitting = true;
 
-        $answer = $this->currentQuestion->answers()->create([
-            'participant_id' => $this->participant->id,
-            'content' => $this->answer_content,
-            'submitted_at' => now()
-        ]);
+        try {
+            $this->validate([
+                'answer_content' => 'required|string|max:1000'
+            ]);
 
-        $answer->load('participant');
-        // broadcast(new AnswerSubmitted($answer))->toOthers(); // Temporarily disabled for development
+            // Check if user already submitted an answer for this question
+            $existingAnswer = $this->currentQuestion->answers()
+                ->where('participant_id', $this->participant->id)
+                ->first();
 
-        $this->answer_content = '';
-        session()->flash('answer_submitted', 'Cevabınız gönderildi!');
+            if ($existingAnswer) {
+                $this->errorMessage = 'Bu soruya zaten cevap verdiniz!';
+                $this->submitting = false;
+                return;
+            }
+
+            $answer = $this->currentQuestion->answers()->create([
+                'participant_id' => $this->participant->id,
+                'content' => $this->answer_content,
+                'submitted_at' => now()
+            ]);
+
+            $answer->load('participant');
+            // broadcast(new AnswerSubmitted($answer))->toOthers(); // Temporarily disabled for development
+
+            $this->answer_content = '';
+            $this->errorMessage = null; // Clear any errors on success
+            session()->flash('answer_submitted', 'Cevabınız gönderildi!');
+        } catch (\Exception $e) {
+            $this->errorMessage = 'Cevap gönderilirken bir hata oluştu.';
+        } finally {
+            $this->submitting = false;
+        }
     }
 
     #[On('echo:room.{roomCode},question.published')]

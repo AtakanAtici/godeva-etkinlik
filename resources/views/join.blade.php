@@ -1,28 +1,29 @@
-@extends('app')
-
-@section('title', 'Etkinliğe Katıl - Godeva Etkinlik')
-
-@section('content')
-<div class="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800">
-    <div class="container mx-auto px-4 py-8">
-        <div class="max-w-md mx-auto">
-            <div class="text-center mb-8">
-                <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-                    Etkinliğe Katılın
-                </h1>
-                <p class="text-gray-600 dark:text-gray-300">
-                    Oda Kodu: <span class="font-mono text-lg font-bold text-green-600 dark:text-green-400">{{ $roomCode }}</span>
-                </p>
-            </div>
-
-            <livewire:participant-join :room-code="$roomCode" />
-
-            <div class="mt-8 text-center">
-                <a href="/" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-sm">
-                    ← Ana sayfaya dön
-                </a>
+<x-layouts.guest>
+    <div class="min-h-screen bg-white flex flex-col">
+        <!-- Header -->
+        <div class="bg-white border-b border-gray-200 px-6 py-8">
+            <div class="max-w-md mx-auto text-center">
+                <div class="flex items-center justify-center gap-4 mb-6">
+                    <img src="https://godeva.com.tr/assets/img/logo_home6.svg" alt="Godeva Logo" class="h-12 w-auto">
+                    <h1 class="text-3xl font-bold text-gray-900">Etkinliğe Katılın</h1>
+                </div>
+                <div class="bg-gray-50 rounded-lg px-4 py-3 inline-block">
+                    <p class="text-sm text-gray-600 font-medium">Oda Kodu:</p>
+                    <p class="text-2xl font-mono font-bold text-green-600 tracking-wider">{{ $roomCode }}</p>
+                </div>
             </div>
         </div>
+        
+        <!-- Main Content -->
+        <div class="flex-1 px-6 py-8">
+            <div class="max-w-md mx-auto">
+                <livewire:participant-join :room-code="$roomCode" />
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="border-t border-gray-200 px-6 py-4">
+            <p class="text-center text-sm text-gray-500">© 2026 Godeva - Canlı Etkinlik Sistemi</p>
+        </div>
     </div>
-</div>
-@endsection
+</x-layouts.guest>

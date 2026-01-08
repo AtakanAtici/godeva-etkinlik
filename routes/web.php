@@ -51,19 +51,7 @@ Route::get('/host/{room}', function ($room) {
 
 // Main host page
 Route::get('/host', function () {
-    // Redirect to create a new room or show existing rooms
-    $rooms = App\Models\Room::orderBy('created_at', 'desc')->take(5)->get();
-    if ($rooms->count() > 0) {
-        return redirect('/host/' . $rooms->first()->id);
-    } else {
-        // Create a default room
-        $room = App\Models\Room::create([
-            'title' => 'Yeni Etkinlik',
-            'host_id' => 'godeva',
-            'status' => 'active'
-        ]);
-        return redirect('/host/' . $room->id);
-    }
+    return view('host-list');
 })->middleware('auth.host');
 
 Route::get('/presentation/{code}', function (string $code) {

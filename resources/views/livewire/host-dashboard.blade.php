@@ -203,6 +203,15 @@
                                         @endif
                                         • {{ $question->answers()->count() }} cevap
                                     </p>
+                                    @if($question->type === 'multiple_choice' && is_array($question->options))
+                                        <div class="mt-2 pl-2 border-l-2 border-gray-200 dark:border-gray-600">
+                                            @foreach($question->options as $index => $option)
+                                                <p class="text-xs text-gray-600 dark:text-gray-400">
+                                                    <span class="font-medium">{{ chr(65 + $index) }}.</span> {{ $option }}
+                                                </p>
+                                            @endforeach
+                                        </div>
+                                    @endif
                                 </div>
                                 
                                 <div class="flex gap-2">

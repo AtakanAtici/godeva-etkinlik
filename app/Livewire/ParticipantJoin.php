@@ -1,0 +1,155 @@
+<?php
+
+namespace App\Livewire;
+
+use App\Models\Room;
+use App\Models\Participant;
+use App\Models\Question;
+use App\Models\Answer;
+use App\Events\ParticipantJoined;
+use App\Events\AnswerSubmitted;
+use Livewire\Component;
+use Livewire\Attributes\On;
+
+class ParticipantJoin extends Component
+{
+    public string $roomCode;
+    public ?Room $room = null;
+    public ?Participant $participant = null;
+    public ?Question $currentQuestion = null;
+    public string $nickname = '';
+    public string $answer_content = '';
+    public bool $joined = false;
+    public bool $waiting_for_question = false;
+    public ?string $lastQuestionId = null;
+
+    public function mount(string $roomCode)
+    {
+        $this->roomCode = $roomCode;
+        $this->room = Room::where('code', $roomCode)->firstOrFail();
+        $this->loadParticipant();
+        
+        // Don't load question state on initial load - let polling handle it
+        // This ensures the polling mechanism detects the first question as "new"
+        $this->currentQuestion = null;
+        $this->waiting_for_question = true;
+        $this->lastQuestionId = null;
+    }
+
+    public function loadParticipant()
+    {
+        $sessionId = session()->getId();
+        $this->participant = $this->room->participants()
+            ->where('session_id', $sessionId)
+            ->first();
+            
+        $this->joined = (bool) $this->participant;
+    }
+
+    public function joinRoom()
+    {
+        $this->validate([
+            'nickname' => 'nullable|string|max:50'
+        ]);
+
+        $sessionId = session()->getId();
+        
+        $this->participant = $this->room->participants()->updateOrCreate(
+            ['session_id' => $sessionId],
+            [
+                'nickname' => $this->nickname ?: 'Anonim',
+                'ip_address' => request()->ip(),
+                'last_seen_at' => now()
+            ]
+        );
+
+        if ($this->participant->wasRecentlyCreated) {
+            // broadcast(new ParticipantJoined($this->participant))->toOthers(); // Temporarily disabled
+        }
+
+        $this->joined = true;
+    }
+
+    public function loadQuestionState()
+    {
+        $this->currentQuestion = $this->room->activeQuestion();
+        
+        if ($this->currentQuestion) {
+            $this->waiting_for_question = false;
+            $this->lastQuestionId = $this->currentQuestion->id;
+        } else {
+            $this->waiting_for_question = true;
+            $this->lastQuestionId = null;
+        }
+    }
+
+    public function checkForQuestionUpdates()
+    {
+        // Ensure participant state is maintained
+        $this->loadParticipant();
+        
+        if (!$this->joined) {
+            return; // Don't check for updates if not joined
+        }
+        
+        $this->room = Room::where('code', $this->roomCode)->firstOrFail();
+        $newQuestion = $this->room->activeQuestion();
+        
+        $newQuestionId = $newQuestion ? $newQuestion->id : null;
+        
+        // Check if question state changed
+        if ($this->lastQuestionId !== $newQuestionId) {
+            $this->loadQuestionState();
+            
+            // Clear answer content if question changed
+            if ($newQuestion && $this->lastQuestionId && $this->lastQuestionId !== $newQuestion->id) {
+                $this->answer_content = '';
+                session()->forget('answer_submitted');
+            }
+        }
+    }
+
+    public function submitAnswer()
+    {
+        if (!$this->currentQuestion || !$this->participant) {
+            return;
+        }
+
+        $this->validate([
+            'answer_content' => 'required|string|max:1000'
+        ]);
+
+        $answer = $this->currentQuestion->answers()->create([
+            'participant_id' => $this->participant->id,
+            'content' => $this->answer_content,
+            'submitted_at' => now()
+        ]);
+
+        $answer->load('participant');
+        // broadcast(new AnswerSubmitted($answer))->toOthers(); // Temporarily disabled for development
+
+        $this->answer_content = '';
+        session()->flash('answer_submitted', 'Cevabınız gönderildi!');
+    }
+
+    #[On('echo:room.{roomCode},question.published')]
+    public function onQuestionPublished($data)
+    {
+        $this->currentQuestion = Question::find($data['question']['id']);
+        $this->waiting_for_question = false;
+        $this->answer_content = '';
+    }
+
+    #[On('echo:room.{roomCode},question.closed')]
+    public function onQuestionClosed($data)
+    {
+        $this->currentQuestion = null;
+        $this->waiting_for_question = true;
+        $this->answer_content = '';
+    }
+
+    public function render()
+    {
+        return view('livewire.participant-join');
+    }
+}

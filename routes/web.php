@@ -57,3 +57,8 @@ Route::get('/host', function () {
 Route::get('/presentation/{code}', function (string $code) {
     return view('presentation', ['roomCode' => $code]);
 });
+
+// Report route
+Route::get('/host/room/{room}/report', [App\Http\Controllers\ReportController::class, 'roomReport'])
+    ->middleware('auth.host')
+    ->name('room.report');

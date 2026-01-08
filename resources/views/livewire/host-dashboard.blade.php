@@ -66,6 +66,10 @@
                        class="inline-block bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm">
                         📱 Katılımcı Linki
                     </a>
+                    <a href="/host/room/{{ $room->id }}/report" target="_blank"
+                       class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm">
+                        📊 Rapor Görüntüle
+                    </a>
                     <form action="/logout" method="POST" class="inline">
                         @csrf
                         <button type="submit" 

@@ -142,11 +142,9 @@
 
                         <div class="relative">
                             <h2
-                                class="text-5xl md:text-7xl font-serif font-medium text-gray-900 mb-8 pt-12 leading-snug tracking-normal drop-shadow-sm break-all">
+                                class="text-5xl md:text-6xl font-serif font-medium text-gray-900 mb-8 pt-12 leading-snug tracking-normal drop-shadow-sm break-words px-8">
                                 {{ $currentQuestion->title }}
                             </h2>
-
-
                         </div>
                     </div>
                 </div>

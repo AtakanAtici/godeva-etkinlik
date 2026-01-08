@@ -55,26 +55,16 @@
                     <div class="flex justify-center">
                         <div class="bg-gray-50 rounded-2xl border border-gray-200 p-8 shadow-lg max-w-sm w-full">
                             <div class="text-center mb-6">
-                                <h3 class="text-2xl font-semibold text-gray-800 mb-2">Katılım</h3>
-                                <p class="text-gray-600">Cep telefonunuzdan katılın</p>
+                                <h3 class="text-2xl font-semibold text-gray-800">Katılım</h3>
                             </div>
 
                             <div class="space-y-6">
-                                <!-- Join Code -->
-                                <div class="text-center">
-                                    <p class="text-gray-600 text-sm mb-3">Katılım Kodu</p>
-                                    <div class="bg-white rounded-xl py-4 px-6 border-2 border-blue-100 shadow-sm">
-                                        <span
-                                            class="text-4xl font-bold text-blue-600 tracking-wider">{{ $room->code }}</span>
-                                    </div>
-                                </div>
-
                                 <!-- QR Code -->
                                 <div class="text-center">
-                                    <p class="text-gray-600 text-sm mb-3">QR Kod</p>
-                                    <div class="bg-white p-6 rounded-xl border-2 border-gray-200 inline-block shadow-sm">
-                                        <div class="w-32 h-32 flex items-center justify-center">
-                                            {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(120)->generate(url("/join/{$room->code}")) !!}
+                                    <p class="text-gray-700 text-lg font-semibold mb-4">Katılmak için QR kodu tarayın</p>
+                                    <div class="bg-white p-10 rounded-xl border-2 border-gray-200 inline-block shadow-lg">
+                                        <div class="w-64 h-64 flex items-center justify-center">
+                                            {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(240)->generate(url("/join/{$room->code}")) !!}
                                         </div>
                                     </div>
                                 </div>

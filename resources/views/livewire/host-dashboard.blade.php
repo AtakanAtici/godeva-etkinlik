@@ -153,7 +153,7 @@
                                     <span class="text-red-500 text-sm">{{ $message }}</span>
                                 @enderror
                                 
-                                @if(count($question_options) < 6)
+                                @if(count($question_options) < 12)
                                     <button 
                                         type="button"
                                         wire:click="addOption"

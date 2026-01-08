@@ -176,8 +176,8 @@
 
                                 <!-- Hidden data container for JavaScript -->
                                 <script id="chart-data" type="application/json">
-                                                                                                                                                {!! json_encode($multipleChoiceResults) !!}
-                                                                                                                                            </script>
+                                                                                                                                                            {!! json_encode($multipleChoiceResults) !!}
+                                                                                                                                                        </script>
 
                                 <!-- Statistics Summary -->
                                 <div class="mt-6 pt-6 border-t border-gray-200">
@@ -280,7 +280,20 @@
 
             console.log('Initializing chart with data:', results);
 
-            const colors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4'];
+            const colors = [
+                '#3B82F6', // Blue
+                '#10B981', // Green
+                '#F59E0B', // Yellow
+                '#EF4444', // Red
+                '#8B5CF6', // Purple
+                '#06B6D4', // Cyan
+                '#EC4899', // Pink
+                '#6366F1', // Indigo
+                '#14B8A6', // Teal
+                '#84CC16', // Lime
+                '#F97316', // Orange
+                '#64748B'  // Slate/Gray
+            ];
 
             // Destroy existing chart
             if (multipleChoiceChart) {

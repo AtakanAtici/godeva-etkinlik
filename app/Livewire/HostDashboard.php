@@ -98,7 +98,7 @@ class HostDashboard extends Component
 
     public function addOption()
     {
-        if (count($this->question_options) < 6) { // Maximum 6 options
+        if (count($this->question_options) < 12) { // Maximum 12 options
             $this->question_options[] = '';
         }
     }

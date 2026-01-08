@@ -152,7 +152,7 @@
 
                         <div class="relative">
                             <h2
-                                class="text-5xl md:text-7xl font-serif font-medium text-gray-900 mb-8 pt-12 leading-snug tracking-normal drop-shadow-sm">
+                                class="text-5xl md:text-7xl font-serif font-medium text-gray-900 mb-8 pt-12 leading-snug tracking-normal drop-shadow-sm break-all">
                                 {{ $currentQuestion->title }}
                             </h2>
 
@@ -176,8 +176,8 @@
 
                                 <!-- Hidden data container for JavaScript -->
                                 <script id="chart-data" type="application/json">
-                                                                                                                                    {!! json_encode($multipleChoiceResults) !!}
-                                                                                                                                </script>
+                                                                                                                                                {!! json_encode($multipleChoiceResults) !!}
+                                                                                                                                            </script>
 
                                 <!-- Statistics Summary -->
                                 <div class="mt-6 pt-6 border-t border-gray-200">
@@ -219,7 +219,9 @@
                         @forelse($recentAnswers as $answer)
                             <div
                                 class="bg-white backdrop-blur rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 flex flex-col justify-center group relative overflow-hidden h-full">
-                                <div class="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-purple-50/50 opacity-0 group-hover:opacity-100 transition duration-500"></div>
+                                <div
+                                    class="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-purple-50/50 opacity-0 group-hover:opacity-100 transition duration-500">
+                                </div>
                                 <div class="relative z-10">
                                     <p class="text-gray-800 text-xl font-medium text-center leading-relaxed break-all">
                                         {{ $answer->content }}

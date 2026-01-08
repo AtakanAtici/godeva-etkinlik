@@ -30,12 +30,14 @@ class ParticipantJoin extends Component
         $this->roomCode = $roomCode;
         $this->room = Room::where('code', $roomCode)->firstOrFail();
         $this->loadParticipant();
-        
-        // Don't load question state on initial load - let polling handle it
-        // This ensures the polling mechanism detects the first question as "new"
-        $this->currentQuestion = null;
-        $this->waiting_for_question = true;
-        $this->lastQuestionId = null;
+
+        if ($this->joined) {
+            $this->loadQuestionState();
+        } else {
+            $this->currentQuestion = null;
+            $this->waiting_for_question = true;
+            $this->lastQuestionId = null;
+        }
     }
 
     public function loadParticipant()
@@ -44,7 +46,7 @@ class ParticipantJoin extends Component
         $this->participant = $this->room->participants()
             ->where('session_id', $sessionId)
             ->first();
-            
+
         $this->joined = (bool) $this->participant;
     }
 
@@ -55,7 +57,7 @@ class ParticipantJoin extends Component
         ]);
 
         $sessionId = session()->getId();
-        
+
         $this->participant = $this->room->participants()->updateOrCreate(
             ['session_id' => $sessionId],
             [
@@ -70,12 +72,13 @@ class ParticipantJoin extends Component
         }
 
         $this->joined = true;
+        $this->loadQuestionState();
     }
 
     public function loadQuestionState()
     {
         $this->currentQuestion = $this->room->activeQuestion();
-        
+
         if ($this->currentQuestion) {
             $this->waiting_for_question = false;
             $this->lastQuestionId = $this->currentQuestion->id;
@@ -89,20 +92,20 @@ class ParticipantJoin extends Component
     {
         // Ensure participant state is maintained
         $this->loadParticipant();
-        
+
         if (!$this->joined) {
             return; // Don't check for updates if not joined
         }
-        
+
         $this->room = Room::where('code', $this->roomCode)->firstOrFail();
         $newQuestion = $this->room->activeQuestion();
-        
+
         $newQuestionId = $newQuestion ? $newQuestion->id : null;
-        
+
         // Check if question state changed
         if ($this->lastQuestionId !== $newQuestionId) {
             $this->loadQuestionState();
-            
+
             // Clear answer content if question changed
             if ($newQuestion && $this->lastQuestionId && $this->lastQuestionId !== $newQuestion->id) {
                 $this->answer_content = '';

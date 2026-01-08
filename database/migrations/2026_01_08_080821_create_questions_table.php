@@ -30,6 +30,9 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Disable foreign key checks for SQLite
+        Schema::disableForeignKeyConstraints();
         Schema::dropIfExists('questions');
+        Schema::enableForeignKeyConstraints();
     }
 };

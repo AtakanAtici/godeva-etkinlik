@@ -12,12 +12,7 @@
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
     <!-- Scripts -->
-    @if(app()->environment('production'))
-        <!-- TailwindCSS CDN for Production -->
-        <script src="https://cdn.tailwindcss.com"></script>
-    @else
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @endif
+    <script src="https://cdn.tailwindcss.com"></script>
     @livewireStyles
 </head>
 <body class="h-full">

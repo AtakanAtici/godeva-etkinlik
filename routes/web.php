@@ -60,7 +60,7 @@ Route::get('/host', function () {
         $room = App\Models\Room::create([
             'title' => 'Yeni Etkinlik',
             'host_id' => 'godeva',
-            'status' => 'waiting'
+            'status' => 'active'
         ]);
         return redirect('/host/' . $room->id);
     }

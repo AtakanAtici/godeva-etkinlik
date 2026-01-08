@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('title');
             $table->uuid('host_id')->nullable();
             $table->json('settings')->nullable();
-            $table->enum('status', ['active', 'paused', 'closed'])->default('active');
+            $table->enum('status', ['active', 'waiting', 'paused', 'closed'])->default('active');
             $table->timestamps();
         });
     }

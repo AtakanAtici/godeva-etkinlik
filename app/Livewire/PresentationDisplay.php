@@ -165,12 +165,26 @@ class PresentationDisplay extends Component
     #[On('echo:room.{roomCode},question.published')]
     public function onQuestionPublished($data)
     {
-        $this->currentQuestion = Question::find($data['question']['id']);
-        $this->answersRevealed = false;
-        $this->revealTime = $data['question']['reveal_time'] ?? null;
+        // Small delay to ensure database transaction is committed
+        usleep(100000); // 100ms delay
+
+        // Load fresh question from database to ensure we have the latest published_at
+        $this->currentQuestion = Question::where('id', $data['question']['id'])->first();
+
+        if ($this->currentQuestion) {
+            // Refresh to get the absolute latest data from database
+            $this->currentQuestion->refresh();
+            $this->answersRevealed = false;
+            // Calculate reveal time from the fresh model
+            $this->revealTime = $this->currentQuestion->reveal_time?->toIso8601String();
+        }
+
         $this->recentAnswers = [];
         $this->wordCloudData = [];
         $this->multipleChoiceResults = [];
+
+        // Load participant count
+        $this->participantCount = $this->room->participantCount();
     }
 
     #[On('echo:room.{roomCode},question.closed')]

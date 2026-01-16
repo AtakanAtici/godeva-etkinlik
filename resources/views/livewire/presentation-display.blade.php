@@ -152,9 +152,19 @@
 
             <!-- Results Display -->
             <div class="flex-1">
-                @if(!$answersRevealed && $currentQuestion)
-                    <!-- Countdown Display -->
+                @if(!$answersRevealed && $currentQuestion && !$revealTime)
+                    <!-- Loading State -->
                     <div class="h-full flex flex-col justify-center items-center px-8">
+                        <div class="text-center">
+                            <svg class="w-16 h-16 mx-auto text-blue-500 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            <p class="text-xl text-gray-600 mt-4">Hazırlanıyor...</p>
+                        </div>
+                    </div>
+                @elseif(!$answersRevealed && $currentQuestion && $revealTime)
+                    <!-- Countdown Display -->
+                    <div class="h-full flex flex-col justify-center items-center px-8" wire:key="countdown-{{ $currentQuestion->id }}-{{ $revealTime }}">
                         <div class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl p-16 shadow-2xl max-w-4xl mx-auto w-full" x-data="countdown('{{ $revealTime }}')" x-init="start()">
                             <div class="space-y-8">
                                 <!-- Header -->

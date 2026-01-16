@@ -188,8 +188,8 @@
 
                                 <!-- Countdown Timer -->
                                 <div class="bg-white rounded-2xl p-8 shadow-lg">
-                                    <div class="text-7xl font-black text-blue-600 text-center" x-text="seconds"></div>
-                                    <div class="text-lg text-gray-500 mt-2 text-center">saniye sonra sonuçlar görünecek</div>
+                                    <div class="text-7xl font-black text-blue-600 text-center" x-text="formatTime(seconds)"></div>
+                                    <div class="text-lg text-gray-500 mt-2 text-center">sonra sonuçlar görünecek</div>
                                 </div>
 
                                 <!-- Answer Count -->
@@ -571,6 +571,15 @@
                     const reveal = new Date(revealTime).getTime();
                     const diff = Math.max(0, Math.ceil((reveal - now) / 1000));
                     this.seconds = diff;
+                },
+
+                formatTime(totalSeconds) {
+                    if (totalSeconds < 60) {
+                        return totalSeconds + 's';
+                    }
+                    const minutes = Math.floor(totalSeconds / 60);
+                    const seconds = totalSeconds % 60;
+                    return minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
                 }
             };
         }

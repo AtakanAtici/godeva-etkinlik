@@ -131,16 +131,26 @@
                                 type="range"
                                 wire:model.live="answer_reveal_delay"
                                 min="0"
-                                max="60"
-                                step="1"
+                                max="600"
+                                step="5"
                                 class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
                             >
-                            <span class="text-lg font-bold text-gray-900 dark:text-white w-16 text-center">
-                                {{ $answer_reveal_delay }}s
+                            <span class="text-lg font-bold text-gray-900 dark:text-white w-20 text-center">
+                                @if($answer_reveal_delay >= 60)
+                                    {{ floor($answer_reveal_delay / 60) }}dk {{ $answer_reveal_delay % 60 }}s
+                                @else
+                                    {{ $answer_reveal_delay }}s
+                                @endif
                             </span>
                         </div>
                         <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                            Soru yayınlandıktan sonra cevaplar <span class="font-semibold">{{ $answer_reveal_delay }}</span> saniye sonra gösterilecek
+                            Soru yayınlandıktan sonra cevaplar
+                            @if($answer_reveal_delay >= 60)
+                                <span class="font-semibold">{{ floor($answer_reveal_delay / 60) }} dakika {{ $answer_reveal_delay % 60 }} saniye</span>
+                            @else
+                                <span class="font-semibold">{{ $answer_reveal_delay }} saniye</span>
+                            @endif
+                            sonra gösterilecek
                         </p>
                     </div>
 

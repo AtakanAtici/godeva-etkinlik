@@ -16,7 +16,7 @@ class QuestionController extends Controller
             'title' => 'required|string',
             'type' => 'required|in:open_text,multiple_choice',
             'options' => 'array|nullable',
-            'answer_reveal_delay' => 'integer|min:0|max:60'
+            'answer_reveal_delay' => 'integer|min:0|max:600'
         ]);
 
         $question = $room->questions()->create($validated);

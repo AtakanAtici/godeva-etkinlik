@@ -23,6 +23,7 @@ class HostDashboard extends Component
     public string $room_title = '';
     public array $question_options = ['', '']; // 2 default options
     public int $correct_option = -1; // For future voting results
+    public int $answer_reveal_delay = 5; // Seconds to delay answer reveal
 
     public function mount(string $roomId)
     {
@@ -80,7 +81,8 @@ class HostDashboard extends Component
         $question = $this->room->questions()->create([
             'title' => $this->new_question_title,
             'type' => $this->question_type,
-            'options' => $options
+            'options' => $options,
+            'answer_reveal_delay' => $this->answer_reveal_delay
         ]);
 
         $this->resetForm();
@@ -94,6 +96,7 @@ class HostDashboard extends Component
         $this->question_type = 'open_text';
         $this->question_options = ['', ''];
         $this->correct_option = -1;
+        $this->answer_reveal_delay = 5;
     }
 
     public function addOption()

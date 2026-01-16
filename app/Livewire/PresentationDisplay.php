@@ -18,6 +18,8 @@ class PresentationDisplay extends Component
     public $wordCloudData = [];
     public int $lastAnswerCount = 0;
     public $multipleChoiceResults = [];
+    public bool $answersRevealed = false;
+    public ?string $revealTime = null;
 
     public function mount(string $roomCode)
     {
@@ -37,20 +39,32 @@ class PresentationDisplay extends Component
         $this->participantCount = $this->room->participantCount();
 
         if ($this->currentQuestion) {
-            $this->recentAnswers = $this->currentQuestion->answers()
-                ->with('participant')
-                ->where('is_hidden', false)
-                ->orderBy('submitted_at', 'desc')
-                ->take(24)
-                ->get();
+            // Check if answers should be revealed
+            $this->answersRevealed = $this->currentQuestion->shouldRevealAnswers();
+            $this->revealTime = $this->currentQuestion->reveal_time?->toIso8601String();
 
-            $this->lastAnswerCount = $this->recentAnswers->count();
+            // Only load answer data if revealed
+            if ($this->answersRevealed) {
+                $this->recentAnswers = $this->currentQuestion->answers()
+                    ->with('participant')
+                    ->where('is_hidden', false)
+                    ->orderBy('submitted_at', 'desc')
+                    ->take(24)
+                    ->get();
 
-            // Generate appropriate data based on question type
-            if ($this->currentQuestion->type === 'multiple_choice') {
-                $this->generateMultipleChoiceResults();
+                $this->lastAnswerCount = $this->recentAnswers->count();
+
+                // Generate appropriate data based on question type
+                if ($this->currentQuestion->type === 'multiple_choice') {
+                    $this->generateMultipleChoiceResults();
+                } else {
+                    $this->generateWordCloud();
+                }
             } else {
-                $this->generateWordCloud();
+                // During delay period, don't show answers
+                $this->recentAnswers = [];
+                $this->wordCloudData = [];
+                $this->multipleChoiceResults = [];
             }
         }
     }
@@ -152,6 +166,8 @@ class PresentationDisplay extends Component
     public function onQuestionPublished($data)
     {
         $this->currentQuestion = Question::find($data['question']['id']);
+        $this->answersRevealed = false;
+        $this->revealTime = $data['question']['reveal_time'] ?? null;
         $this->recentAnswers = [];
         $this->wordCloudData = [];
         $this->multipleChoiceResults = [];
@@ -177,6 +193,16 @@ class PresentationDisplay extends Component
     public function onParticipantJoined($data)
     {
         $this->participantCount = $data['participant_count'];
+    }
+
+    public function checkRevealStatus()
+    {
+        if ($this->currentQuestion && !$this->answersRevealed) {
+            if ($this->currentQuestion->shouldRevealAnswers()) {
+                $this->answersRevealed = true;
+                $this->loadData();
+            }
+        }
     }
 
     public function render()

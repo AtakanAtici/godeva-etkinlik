@@ -152,7 +152,57 @@
 
             <!-- Results Display -->
             <div class="flex-1">
-                @if($currentQuestion->type === 'multiple_choice')
+                @if(!$answersRevealed && $currentQuestion)
+                    <!-- Countdown Display -->
+                    <div class="h-full flex flex-col justify-center items-center px-8">
+                        <div class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl p-16 shadow-2xl max-w-4xl mx-auto w-full" x-data="countdown('{{ $revealTime }}')" x-init="start()">
+                            <div class="space-y-8">
+                                <!-- Header -->
+                                <div class="text-center">
+                                    <svg class="w-24 h-24 mx-auto text-blue-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+
+                                    <div class="mt-6">
+                                        <h3 class="text-4xl font-bold text-gray-800 mb-3">Cevaplar Geliyor!</h3>
+                                        <p class="text-xl text-gray-600">Katılımcılar cevap gönderiyor...</p>
+                                    </div>
+                                </div>
+
+                                <!-- Options (for multiple choice) -->
+                                @if($currentQuestion->type === 'multiple_choice' && $currentQuestion->options)
+                                    <div class="bg-white rounded-2xl p-8 shadow-lg">
+                                        <div class="grid grid-cols-2 gap-4">
+                                            @foreach($currentQuestion->options as $index => $option)
+                                                <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl border-2 border-gray-200">
+                                                    <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-xl flex-shrink-0"
+                                                        style="background-color: {{ ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#EC4899', '#6366F1', '#14B8A6', '#84CC16', '#F97316', '#64748B'][$index] ?? '#6B7280' }}">
+                                                        {{ chr(65 + $index) }}
+                                                    </div>
+                                                    <span class="text-lg text-gray-700 font-medium">{{ $option }}</span>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
+
+                                <!-- Countdown Timer -->
+                                <div class="bg-white rounded-2xl p-8 shadow-lg">
+                                    <div class="text-7xl font-black text-blue-600 text-center" x-text="seconds"></div>
+                                    <div class="text-lg text-gray-500 mt-2 text-center">saniye sonra sonuçlar görünecek</div>
+                                </div>
+
+                                <!-- Answer Count -->
+                                <div class="flex items-center justify-center gap-2 text-green-600">
+                                    <svg class="w-6 h-6 animate-bounce" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span class="text-lg font-medium">{{ $currentQuestion->answers()->count() }} cevap alındı</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @elseif($currentQuestion->type === 'multiple_choice')
                     <!-- Multiple Choice Results Chart -->
                     <div class="h-full flex flex-col justify-center px-8">
                         <div class="bg-white rounded-2xl p-8 shadow-lg max-w-5xl mx-auto w-full">
@@ -487,13 +537,53 @@
             @endif
         }
 
-        // Keep Livewire polling for data updates
+        // Alpine.js countdown component
+        function countdown(revealTime) {
+            return {
+                seconds: 0,
+                intervalId: null,
+
+                start() {
+                    this.updateSeconds();
+                    this.intervalId = setInterval(() => {
+                        this.updateSeconds();
+
+                        if (this.seconds <= 0) {
+                            clearInterval(this.intervalId);
+                            // Trigger Livewire refresh to show answers
+                            if (typeof Livewire !== 'undefined') {
+                                const component = Livewire.find('{{ $this->getId() }}');
+                                if (component) {
+                                    component.call('checkRevealStatus');
+                                }
+                            }
+                        }
+                    }, 1000);
+                },
+
+                updateSeconds() {
+                    if (!revealTime) {
+                        this.seconds = 0;
+                        return;
+                    }
+
+                    const now = new Date().getTime();
+                    const reveal = new Date(revealTime).getTime();
+                    const diff = Math.max(0, Math.ceil((reveal - now) / 1000));
+                    this.seconds = diff;
+                }
+            };
+        }
+
+        // Keep Livewire polling for data updates and reveal status
         document.addEventListener('livewire:navigated', () => {
             setInterval(() => {
                 if (typeof Livewire !== 'undefined' && Livewire.find('{{ $this->getId() }}')) {
-                    Livewire.find('{{ $this->getId() }}').call('checkForUpdates');
+                    const component = Livewire.find('{{ $this->getId() }}');
+                    component.call('checkForUpdates');
+                    component.call('checkRevealStatus');
                 }
-            }, 2000);
+            }, 1000); // Check every second for reveal status
         });
 
         // Simple polling system

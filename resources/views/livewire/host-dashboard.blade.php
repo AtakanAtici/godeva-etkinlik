@@ -122,6 +122,28 @@
                         </select>
                     </div>
 
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Cevap Gösterim Gecikmesi
+                        </label>
+                        <div class="flex items-center gap-3">
+                            <input
+                                type="range"
+                                wire:model.live="answer_reveal_delay"
+                                min="0"
+                                max="60"
+                                step="1"
+                                class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                            >
+                            <span class="text-lg font-bold text-gray-900 dark:text-white w-16 text-center">
+                                {{ $answer_reveal_delay }}s
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            Soru yayınlandıktan sonra cevaplar <span class="font-semibold">{{ $answer_reveal_delay }}</span> saniye sonra gösterilecek
+                        </p>
+                    </div>
+
                     @if($question_type === 'multiple_choice')
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -207,15 +229,6 @@
                                         @endif
                                         • {{ $question->answers()->count() }} cevap
                                     </p>
-                                    @if($question->type === 'multiple_choice' && is_array($question->options))
-                                        <div class="mt-2 pl-2 border-l-2 border-gray-200 dark:border-gray-600">
-                                            @foreach($question->options as $index => $option)
-                                                <p class="text-xs text-gray-600 dark:text-gray-400">
-                                                    <span class="font-medium">{{ chr(65 + $index) }}.</span> {{ $option }}
-                                                </p>
-                                            @endforeach
-                                        </div>
-                                    @endif
                                 </div>
                                 
                                 <div class="flex gap-2">

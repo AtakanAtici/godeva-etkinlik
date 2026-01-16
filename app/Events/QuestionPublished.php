@@ -39,6 +39,8 @@ class QuestionPublished implements ShouldBroadcast
                 'type' => $this->question->type,
                 'options' => $this->question->options,
                 'published_at' => $this->question->published_at,
+                'answer_reveal_delay' => $this->question->answer_reveal_delay,
+                'reveal_time' => $this->question->reveal_time?->toIso8601String(),
             ],
             'room_code' => $this->question->room->code,
         ];

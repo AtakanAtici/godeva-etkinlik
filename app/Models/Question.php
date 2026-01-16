@@ -12,7 +12,7 @@ class Question extends Model
     use HasUuids;
 
     protected $fillable = [
-        'room_id', 'title', 'type', 'options', 'status', 'published_at'
+        'room_id', 'title', 'type', 'options', 'answer_reveal_delay', 'status', 'published_at'
     ];
 
     protected $casts = [
@@ -49,5 +49,24 @@ class Question extends Model
             'status' => 'published',
             'published_at' => now(),
         ]);
+    }
+
+    public function shouldRevealAnswers(): bool
+    {
+        if (!$this->published_at) {
+            return false;
+        }
+
+        $revealTime = $this->published_at->addSeconds($this->answer_reveal_delay);
+        return now()->greaterThanOrEqualTo($revealTime);
+    }
+
+    public function getRevealTimeAttribute(): ?\Carbon\Carbon
+    {
+        if (!$this->published_at) {
+            return null;
+        }
+
+        return $this->published_at->copy()->addSeconds($this->answer_reveal_delay);
     }
 }

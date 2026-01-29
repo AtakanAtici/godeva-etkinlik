@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-6" wire:poll.500ms="checkForQuestionUpdates">
     @if (!$joined)
         <!-- Join Form -->
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
@@ -159,25 +159,5 @@
                 </div>
             @endif
         </div>
-    @endif
-    
-    @if($joined)
-        <script>
-            // Initial setup for current page
-            if (typeof Livewire !== 'undefined') {
-                // Check for question updates immediately on page load
-                const component = Livewire.find('{{ $this->getId() }}');
-                if (component) {
-                    component.call('checkForQuestionUpdates');
-                }
-
-                // Then poll every 2 seconds
-                setInterval(() => {
-                    if (Livewire.find('{{ $this->getId() }}')) {
-                        Livewire.find('{{ $this->getId() }}').call('checkForQuestionUpdates');
-                    }
-                }, 2000);
-            }
-        </script>
     @endif
 </div>

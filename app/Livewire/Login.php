@@ -18,9 +18,9 @@ class Login extends Component
     public function login()
     {
         $this->validate();
-        
+
         // Statik kullanıcı doğrulama
-        if ($this->username === 'godeva' && $this->password === 'Deva*12345') {
+        if ($this->username === 'godeva' && $this->password === 'G5s2eb9L') {
             session(['authenticated' => true]);
             return redirect()->intended('/host');
         } else {

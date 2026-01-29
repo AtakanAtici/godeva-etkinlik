@@ -73,6 +73,11 @@ class ParticipantJoin extends Component
 
         $this->joined = true;
         $this->loadQuestionState();
+
+        // Force immediate check for any questions published during the joining process
+        // This prevents missing questions that are published in the first 500ms
+        // when wire:poll hasn't started polling yet
+        $this->checkForQuestionUpdates();
     }
 
     public function loadQuestionState()

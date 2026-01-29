@@ -163,17 +163,15 @@
     
     @if($joined)
         <script>
-            document.addEventListener('livewire:navigated', () => {
-                // Auto-refresh every 2 seconds to check for question updates
-                setInterval(() => {
-                    if (typeof Livewire !== 'undefined' && Livewire.find('{{ $this->getId() }}')) {
-                        Livewire.find('{{ $this->getId() }}').call('checkForQuestionUpdates');
-                    }
-                }, 1000);
-            });
-            
             // Initial setup for current page
             if (typeof Livewire !== 'undefined') {
+                // Check for question updates immediately on page load
+                const component = Livewire.find('{{ $this->getId() }}');
+                if (component) {
+                    component.call('checkForQuestionUpdates');
+                }
+
+                // Then poll every 2 seconds
                 setInterval(() => {
                     if (Livewire.find('{{ $this->getId() }}')) {
                         Livewire.find('{{ $this->getId() }}').call('checkForQuestionUpdates');

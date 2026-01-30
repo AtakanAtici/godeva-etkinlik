@@ -140,20 +140,48 @@
                         @endforeach
                     </div>
                 @else
-                    <!-- Açık Uçlu Cevaplar -->
-                    <div class="max-h-96 overflow-y-auto">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            @foreach($question['answers'] as $answer)
-                            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                                <p class="text-gray-700 mb-2">{{ $answer['content'] }}</p>
-                                <p class="text-xs text-gray-500">
-                                    <span class="font-medium">{{ $answer['participant'] }}</span> • 
-                                    {{ \Carbon\Carbon::parse($answer['submitted_at'])->format('d.m.Y H:i') }}
-                                </p>
+                    <!-- Açık Uçlu Cevaplar - Word Cloud -->
+                    @if(!empty($question['word_cloud']))
+                    <div class="mb-6">
+                        <h4 class="text-sm font-semibold text-gray-700 mb-4">En Çok Kullanılan Kelimeler</h4>
+                        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-8 border border-blue-100">
+                            <div class="flex flex-wrap gap-3 justify-center items-center">
+                                @foreach($question['word_cloud'] as $item)
+                                <span class="font-bold text-gray-800 px-3 py-2 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow border border-gray-200"
+                                      style="font-size: {{ $item['size'] * 1.2 }}rem;">
+                                    {{ $item['word'] }}
+                                    <span class="text-xs text-gray-500 ml-1">×{{ $item['count'] }}</span>
+                                </span>
+                                @endforeach
                             </div>
-                            @endforeach
+                        </div>
+                        <p class="text-xs text-gray-500 mt-3">
+                            Toplam {{ $question['total_unique_words'] }} farklı kelime • Kelime boyutu kullanım sıklığını gösterir
+                        </p>
+                    </div>
+
+                    <div class="border-t border-gray-200 pt-6">
+                        <h4 class="text-sm font-semibold text-gray-700 mb-4">Tüm Cevaplar</h4>
+                        <div class="max-h-96 overflow-y-auto">
+                            <div class="space-y-3">
+                                @foreach($question['answers'] as $answer)
+                                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:border-gray-300 transition-colors">
+                                    <p class="text-gray-700 mb-2">{{ $answer['content'] }}</p>
+                                    <p class="text-xs text-gray-500">
+                                        <span class="font-medium">{{ $answer['participant'] }}</span> •
+                                        {{ \Carbon\Carbon::parse($answer['submitted_at'])->format('d.m.Y H:i') }}
+                                    </p>
+                                </div>
+                                @endforeach
+                            </div>
                         </div>
                     </div>
+                    @else
+                    <!-- Fallback: Eğer cevap yoksa -->
+                    <div class="text-center py-8 text-gray-500">
+                        <p>Bu soruya henüz cevap alınmamıştır.</p>
+                    </div>
+                    @endif
                 @endif
             </div>
             @endforeach

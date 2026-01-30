@@ -78,14 +78,44 @@ class ReportController extends Controller
                 
                 $questionData['results'] = array_values($results);
             } else {
-                // Açık uçlu soru için tüm cevapları al
-                $questionData['answers'] = $question->answers->map(function ($answer) {
-                    return [
-                        'content' => $answer->content,
-                        'participant' => $answer->participant->nickname,
-                        'submitted_at' => $answer->submitted_at
+                // Açık uçlu soru için word cloud oluştur
+                $allAnswers = $question->answers()
+                    ->where('is_hidden', false)
+                    ->pluck('content')
+                    ->join(' ');
+
+                $words = str_word_count(strtolower($allAnswers), 1, 'çğıöşüÇĞIİÖŞÜ');
+
+                $stopWords = ['ve', 'ile', 'bir', 'bu', 'şu', 'o', 'ben', 'sen', 'biz', 'siz', 'onlar', 'var', 'yok', 'için', 'çok', 'daha', 'en', 'de', 'da', 'ki', 'olan', 'olarak', 'na', 'ne', 'mi', 'li', 'lı', 'lu', 'ün', 'ün', 'a', 'e', 'ı', 'i', 'o', 'ö', 'u', 'ü'];
+
+                $wordCounts = array_count_values(array_filter($words, function($word) use ($stopWords) {
+                    return strlen($word) > 2 && !in_array($word, $stopWords);
+                }));
+
+                arsort($wordCounts);
+                $topWords = array_slice($wordCounts, 0, 20);
+
+                // Max count'u bul (font size hesaplaması için)
+                $maxCount = !empty($topWords) ? max($topWords) : 1;
+                $minCount = !empty($topWords) ? min($topWords) : 1;
+
+                // Word cloud array'ini hazırla
+                $wordCloudData = [];
+                foreach ($topWords as $word => $count) {
+                    // Font size: 1.0x den 3.0x kadar değişir
+                    $fontSizeMultiplier = $maxCount > $minCount
+                        ? 1 + (($count - $minCount) / ($maxCount - $minCount)) * 2
+                        : 1.5;
+
+                    $wordCloudData[] = [
+                        'word' => $word,
+                        'count' => $count,
+                        'size' => round($fontSizeMultiplier, 2)
                     ];
-                })->toArray();
+                }
+
+                $questionData['word_cloud'] = $wordCloudData;
+                $questionData['total_unique_words'] = count($wordCounts);
             }
             
             $stats['questions_data'][] = $questionData;

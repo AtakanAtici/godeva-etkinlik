@@ -116,8 +116,22 @@ class ReportController extends Controller
 
                 $questionData['word_cloud'] = $wordCloudData;
                 $questionData['total_unique_words'] = count($wordCounts);
+
+                // Get the actual answers for display
+                $questionData['answers'] = $question->answers()
+                    ->where('is_hidden', false)
+                    ->with('participant')
+                    ->get()
+                    ->map(function($answer) {
+                        return [
+                            'content' => $answer->content,
+                            'participant' => $answer->participant->name ?? 'Anonymous',
+                            'submitted_at' => $answer->created_at,
+                        ];
+                    })
+                    ->toArray();
             }
-            
+
             $stats['questions_data'][] = $questionData;
         }
         

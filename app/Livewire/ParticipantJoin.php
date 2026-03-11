@@ -135,6 +135,13 @@ class ParticipantJoin extends Component
                 $this->validate([
                     'answer_content' => 'required|numeric|min:0|max:' . (count($this->currentQuestion->options) - 1)
                 ]);
+            } elseif ($this->currentQuestion->type === 'number') {
+                $this->validate([
+                    'answer_content' => 'required|numeric'
+                ], [
+                    'answer_content.required' => 'Lütfen bir sayı girin.',
+                    'answer_content.numeric'  => 'Sadece sayı girebilirsiniz.',
+                ]);
             } else {
                 $this->validate([
                     'answer_content' => 'required|string|max:1000'

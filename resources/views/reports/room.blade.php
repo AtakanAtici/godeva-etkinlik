@@ -127,8 +127,9 @@
                                     </h3>
                                     <div class="flex items-center gap-4 mt-2 text-sm text-gray-600">
                                         <span
-                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $question['type'] === 'multiple_choice' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800' }}">
-                                            {{ $question['type'] === 'multiple_choice' ? 'Çoktan Seçmeli' : 'Açık Uçlu' }}
+                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                                {{ $question['type'] === 'multiple_choice' ? 'bg-blue-100 text-blue-800' : ($question['type'] === 'number' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800') }}">
+                                            {{ $question['type'] === 'multiple_choice' ? 'Çoktan Seçmeli' : ($question['type'] === 'number' ? 'Sayı' : 'Açık Uçlu') }}
                                         </span>
                                         <span>{{ $question['answer_count'] }} cevap</span>
                                         <span>{{ $question['response_rate'] }}% katılım</span>
@@ -155,6 +156,46 @@
                                     </div>
                                 @endforeach
                             </div>
+                        @elseif($question['type'] === 'number')
+                            <!-- Sayı Soru İstatistikleri -->
+                            @if($question['answer_count'] > 0)
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                                        <p class="text-xs text-blue-600 font-medium mb-1">Ortalama</p>
+                                        <p class="text-2xl font-bold text-blue-700">{{ $question['stats']['average'] }}</p>
+                                    </div>
+                                    <div class="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+                                        <p class="text-xs text-green-600 font-medium mb-1">Toplam</p>
+                                        <p class="text-2xl font-bold text-green-700">{{ $question['stats']['sum'] }}</p>
+                                    </div>
+                                    <div class="bg-orange-50 border border-orange-200 rounded-lg p-4 text-center">
+                                        <p class="text-xs text-orange-600 font-medium mb-1">En Küçük</p>
+                                        <p class="text-2xl font-bold text-orange-700">{{ $question['stats']['min'] }}</p>
+                                    </div>
+                                    <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 text-center">
+                                        <p class="text-xs text-purple-600 font-medium mb-1">En Büyük</p>
+                                        <p class="text-2xl font-bold text-purple-700">{{ $question['stats']['max'] }}</p>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h4 class="text-sm font-semibold text-gray-700 mb-3">Tüm Cevaplar</h4>
+                                    <div class="max-h-64 overflow-y-auto">
+                                        <div class="flex flex-wrap gap-2">
+                                            @foreach($question['answers'] as $answer)
+                                                <div class="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-center min-w-[80px]">
+                                                    <p class="text-lg font-bold text-gray-800">{{ $answer['content'] }}</p>
+                                                    <p class="text-xs text-gray-500 truncate max-w-[100px]">{{ $answer['participant'] }}</p>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+                            @else
+                                <div class="text-center py-8 text-gray-500">
+                                    <p>Bu soruya henüz cevap alınmamıştır.</p>
+                                </div>
+                            @endif
                         @else
                             <!-- Açık Uçlu Cevaplar - Word Cloud -->
                             @if(!empty($question['word_cloud']))

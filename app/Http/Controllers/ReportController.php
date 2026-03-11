@@ -38,7 +38,30 @@ class ReportController extends Controller
                 'published_at' => $question->published_at,
             ];
             
-            if ($question->type === 'multiple_choice' && $question->options) {
+            if ($question->type === 'number') {
+                // Sayı sorusu analizi
+                $answers = $question->answers()
+                    ->where('is_hidden', false)
+                    ->with('participant')
+                    ->get();
+
+                $numericValues = $answers->map(fn($a) => floatval($a->content))->filter();
+
+                $questionData['stats'] = [
+                    'average' => $numericValues->count() > 0 ? round($numericValues->average(), 2) : 0,
+                    'sum'     => $numericValues->sum(),
+                    'min'     => $numericValues->count() > 0 ? $numericValues->min() : 0,
+                    'max'     => $numericValues->count() > 0 ? $numericValues->max() : 0,
+                ];
+
+                $questionData['answers'] = $answers->map(function ($answer) {
+                    return [
+                        'content'      => $answer->content,
+                        'participant'  => $answer->participant->nickname ?? 'Anonim',
+                        'submitted_at' => $answer->submitted_at,
+                    ];
+                })->toArray();
+            } elseif ($question->type === 'multiple_choice' && $question->options) {
                 // Çoktan seçmeli soru analizi
                 $results = [];
                 $totalVotes = 0;

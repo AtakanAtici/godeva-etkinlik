@@ -1,14 +1,38 @@
-<div class="min-h-screen bg-white p-8 flex flex-col">
-    <div class="flex-1 flex flex-col">
+<div class="min-h-screen bg-white p-8 flex flex-col {{ $currentSlide ? 'relative' : '' }}">
+    @if ($currentSlide)
+        <!-- Slide Background -->
+        <div class="fixed inset-0 z-0">
+            <img
+                src="{{ $currentSlide->image_url }}"
+                alt="Slayt {{ $currentSlide->slide_number }}"
+                class="w-full h-full object-contain bg-gray-900"
+            >
+        </div>
+        <!-- Overlay for better text readability when question is active -->
+        @if ($currentQuestion)
+            <div class="fixed inset-0 z-1 bg-black bg-opacity-40"></div>
+        @endif
+    @endif
+
+    <div class="flex-1 flex flex-col relative z-10">
         @if (!$currentQuestion)
             <!-- Waiting State - Full Screen -->
             <div class="flex-1 flex flex-col">
                 <!-- Header -->
                 <div class="flex justify-between items-center mb-12">
                     <img src="https://godeva.com.tr/assets/img/logo_home6.svg" alt="Godeva Logo" class="h-12 w-auto">
-                    <div class="flex items-center space-x-2 text-gray-500">
-                        <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                        <span class="text-lg font-medium">Live</span>
+                    <div class="flex items-center space-x-4">
+                        <a href="/host/room/{{ $room->id }}/report" target="_blank"
+                           class="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                            <span>Rapor</span>
+                        </a>
+                        <div class="flex items-center space-x-2 text-gray-500">
+                            <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                            <span class="text-lg font-medium">Live</span>
+                        </div>
                     </div>
                 </div>
 
@@ -128,6 +152,15 @@
                                     </div>
                                 </div>
                             @endif
+
+                            <!-- Report Button -->
+                            <a href="/host/room/{{ $room->id }}/report" target="_blank"
+                               class="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                                Rapor
+                            </a>
                         </div>
                     </div>
                 </div>

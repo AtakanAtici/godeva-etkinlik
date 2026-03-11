@@ -102,9 +102,9 @@
                                     @foreach($currentQuestion->options as $index => $option)
                                         <label class="flex items-center p-4 border-2 border-gray-200 dark:border-gray-600 rounded-lg hover:border-blue-300 dark:hover:border-blue-500 cursor-pointer transition-colors
                                             {{ $answer_content == $index ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : '' }}">
-                                            <input 
-                                                type="radio" 
-                                                wire:model.live="answer_content" 
+                                            <input
+                                                type="radio"
+                                                wire:model.live="answer_content"
                                                 value="{{ $index }}"
                                                 class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"
                                             >
@@ -115,8 +115,26 @@
                                         </label>
                                     @endforeach
                                 </div>
-                                @error('answer_content') 
-                                    <span class="text-red-500 text-sm">{{ $message }}</span> 
+                                @error('answer_content')
+                                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        @elseif($currentQuestion->type === 'number')
+                            <!-- Number Answer -->
+                            <div>
+                                <label for="answer_content" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Sayısal Cevabınız
+                                </label>
+                                <input
+                                    id="answer_content"
+                                    type="number"
+                                    wire:model.live="answer_content"
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white text-center text-2xl font-bold"
+                                    placeholder="0"
+                                    step="any"
+                                >
+                                @error('answer_content')
+                                    <span class="text-red-500 text-sm">{{ $message }}</span>
                                 @enderror
                             </div>
                         @else
@@ -125,7 +143,7 @@
                                 <label for="answer_content" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                     Cevabınız
                                 </label>
-                                <textarea 
+                                <textarea
                                     id="answer_content"
                                     wire:model.live="answer_content"
                                     rows="4"
@@ -133,8 +151,8 @@
                                     placeholder="Cevabınızı buraya yazın..."
                                     maxlength="1000"
                                 ></textarea>
-                                @error('answer_content') 
-                                    <span class="text-red-500 text-sm">{{ $message }}</span> 
+                                @error('answer_content')
+                                    <span class="text-red-500 text-sm">{{ $message }}</span>
                                 @enderror
                                 <p class="text-xs text-gray-500 mt-1">
                                     <span x-text="$wire.answer_content.length"></span>/1000 karakter

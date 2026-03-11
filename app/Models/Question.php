@@ -12,17 +12,23 @@ class Question extends Model
     use HasUuids;
 
     protected $fillable = [
-        'room_id', 'title', 'type', 'options', 'answer_reveal_delay', 'status', 'published_at'
+        'room_id', 'title', 'type', 'options', 'answer_reveal_delay', 'status', 'published_at', 'slide_id', 'auto_publish_on_slide'
     ];
 
     protected $casts = [
         'options' => 'array',
         'published_at' => 'datetime',
+        'auto_publish_on_slide' => 'boolean',
     ];
 
     public function room(): BelongsTo
     {
         return $this->belongsTo(Room::class);
+    }
+
+    public function slide(): BelongsTo
+    {
+        return $this->belongsTo(Slide::class);
     }
 
     public function answers(): HasMany

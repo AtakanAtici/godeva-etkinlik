@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Room;
 use App\Models\Question;
 use App\Models\Answer;
+use App\Models\Slide;
 use Livewire\Component;
 use Livewire\Attributes\On;
 
@@ -13,6 +14,7 @@ class PresentationDisplay extends Component
     public string $roomCode;
     public ?Room $room = null;
     public ?Question $currentQuestion = null;
+    public ?Slide $currentSlide = null;
     public $recentAnswers = [];
     public int $participantCount = 0;
     public $wordCloudData = [];
@@ -30,8 +32,11 @@ class PresentationDisplay extends Component
 
     public function loadRoom()
     {
-        $this->room = Room::where('code', $this->roomCode)->firstOrFail();
+        $this->room = Room::where('code', $this->roomCode)
+            ->with(['activePresentation.slides'])
+            ->firstOrFail();
         $this->currentQuestion = $this->room->activeQuestion();
+        $this->currentSlide = $this->room->currentSlide();
     }
 
     public function loadData()
@@ -207,6 +212,12 @@ class PresentationDisplay extends Component
     public function onParticipantJoined($data)
     {
         $this->participantCount = $data['participant_count'];
+    }
+
+    #[On('echo:room.{roomCode},slide.changed')]
+    public function onSlideChanged($data)
+    {
+        $this->currentSlide = Slide::find($data['slide']['id'] ?? null);
     }
 
     public function checkRevealStatus()

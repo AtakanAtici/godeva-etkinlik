@@ -5,6 +5,7 @@ use App\Http\Controllers\RoomController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\AnswerController;
 use App\Http\Controllers\ParticipantController;
+use App\Http\Controllers\PresentationController;
 
 Route::get('/', function () {
     if (session('authenticated')) {
@@ -29,6 +30,15 @@ Route::prefix('api')->group(function () {
 
     Route::post('questions/{question}/answers', [AnswerController::class, 'store'])->middleware('throttle:10,1');
     Route::put('answers/{answer}/moderate', [AnswerController::class, 'moderate']);
+
+    // Presentation routes
+    Route::post('rooms/{room}/presentations', [PresentationController::class, 'upload']);
+    Route::get('rooms/{room}/presentations/{presentation}', [PresentationController::class, 'show']);
+    Route::delete('rooms/{room}/presentations/{presentation}', [PresentationController::class, 'destroy']);
+    Route::post('rooms/{room}/presentations/{presentation}/activate', [PresentationController::class, 'activate']);
+    Route::post('rooms/{room}/slides/next', [PresentationController::class, 'nextSlide']);
+    Route::post('rooms/{room}/slides/previous', [PresentationController::class, 'previousSlide']);
+    Route::post('rooms/{room}/slides/goto', [PresentationController::class, 'goToSlide']);
 });
 
 Route::get('/join/{code}', function (string $code) {
